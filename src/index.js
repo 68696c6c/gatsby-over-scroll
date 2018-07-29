@@ -1,6 +1,5 @@
 import React, {Component, PropTypes} from 'react'
 import Tracker from './components/event-tracker'
-import {position} from './components/css-supports'
 
 class OverScroll extends Component {
   /**
@@ -17,24 +16,25 @@ class OverScroll extends Component {
    *  - 1 = 100vh
    *  - 2 = 200vh
    */
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = {
-      scrollY: window.scrollY,
+      scrollY: 0,
       counter: 0,
       scrollOffset: 0
     }
     this.updateScroll = this.updateScroll.bind(this)
   }
-  /**
-   * @typedef render
-   * @type Function
-   * @param {Number} index - currently active index
-   * @param {Number} percent - percent of active slide scrolled
-   * @return {ReactNode} - returns a reactDOM element
-   */
 
-  static propTypes () {
+  componentDidMount() {
+    this.setState(() => ({
+      scrollY: window.scrollY,
+      counter: 0,
+      scrollOffset: 0,
+    }))
+  }
+
+  static propTypes() {
     return {
       className: PropTypes.string,
       children: PropTypes.func.isRequired,
@@ -44,7 +44,7 @@ class OverScroll extends Component {
     }
   }
 
-  static defaultProps () {
+  static defaultProps() {
     return {
       factor: 1
     }
@@ -54,7 +54,7 @@ class OverScroll extends Component {
    * checks for the current position and translates the scroll to index and percent
    * @param  {Number} scrollY - window.scrollY
    */
-  updateScroll (scrollY) {
+  updateScroll(scrollY) {
     let fixed
     let snapToBottom
     let counter = 0
@@ -94,7 +94,7 @@ class OverScroll extends Component {
    * It works as a `position: sticky` wrapper
    * @return {Object} returns a style object
    */
-  get frameStyle () {
+  get frameStyle() {
     const slideCount = this.props.slides
     const factor = this.props.factor || 1
     const vh = slideCount * 100 * factor + 100
@@ -111,10 +111,10 @@ class OverScroll extends Component {
    * `position: fixed`. The fallback requires to manually snap the box to the top and bottom
    * @return {Object} returns a position sticky polyfill
    */
-  get overlayStyle () {
+  get overlayStyle() {
     return {
-      position: position.sticky || (this.state.fixed ? 'fixed' : 'absolute'),
-      top: position.sticky ? 0 : this.state.bottom ? 'auto' : 0,
+      position: this.state.fixed ? 'fixed' : 'absolute',
+      top: this.state.bottom ? 'auto' : 0,
       bottom: 0,
       left: 0,
       right: 0,
@@ -124,11 +124,11 @@ class OverScroll extends Component {
 
   /**
    * allow to use deeplinks and clickable pagers to navigate
-   * to speciffic pages inside the slider. Paging is done by simply jumpimg
+   * to specific pages inside the slider. Paging is done by simply jumping
    * to the correct id.
    * @return {null|ReactNode} returns a div with elements that have an id
    */
-  get anchors () {
+  get anchors() {
     if (!this.props.anchors) {
       return null
     }
@@ -153,26 +153,35 @@ class OverScroll extends Component {
         }
       }
       anchors.push(
-        <span {...props}/>
+          <span {...props}/>
       )
     }
     return (
-      <div style={anchorStyle}>{anchors}</div>
+        <div style={anchorStyle}>{anchors}</div>
     )
   }
 
-  render () {
+  /**
+   * @typedef render
+   * @type Function
+   * @param {Number} index - currently active index
+   * @param {Number} percent - percent of active slide scrolled
+   * @return {ReactNode} - returns a reactDOM element
+   */
+  render() {
     return (
-      <div className={this.props.className}>
-        <Tracker onScroll={this.updateScroll}/>
-        <div style={this.frameStyle}
-             ref={x => { this.tracker = x }}>
-          {this.anchors}
-          <div style={this.overlayStyle}>
-            {this.props.children(this.state.counter, this.state.scrollOffset, this.props.anchors)}
+        <div className={this.props.className}>
+          <Tracker onScroll={this.updateScroll}/>
+          <div style={this.frameStyle}
+               ref={x => {
+                 this.tracker = x
+               }}>
+            {this.anchors}
+            <div style={this.overlayStyle}>
+              {this.props.children(this.state.counter, this.state.scrollOffset, this.props.anchors)}
+            </div>
           </div>
         </div>
-      </div>
     )
   }
 }

@@ -22,7 +22,7 @@ class EventTracker extends Component {
     this.props.onScroll(window.scrollY)
   }
 
-  componentWillMount () {
+  componentDidMount () {
     window.addEventListener('scroll', this.trackScroll)
   }
 

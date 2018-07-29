@@ -38,3 +38,6 @@ jspm_packages
 
 #generated
 lib
+
+.idea
+.DS_Store
